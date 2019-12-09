@@ -11,7 +11,7 @@ public static partial class Days
 {
   private const string InputBasePath = @"Days/Input/";
 
-  private static string OutputResult(string part1, string part2)
+  private static string OutputResult(string part1 = string.Empty, string part2 = string.Empty)
   {
     return $"{Environment.NewLine}- Part 1: {part1}{Environment.NewLine}- Part 2: {part2}";
   }
@@ -160,4 +160,8 @@ public static partial class Days
 
   #endregion
 
+  public static string Day3()
+  {
+    return OutputResult();
+  }
 }
