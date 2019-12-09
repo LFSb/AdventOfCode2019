@@ -58,50 +58,60 @@ public static partial class Days
 
   public static string Day2()
   {
-    var testInput = new[] { 1,1,1,4,99,5,6,0,99};
+    var input = File.ReadAllText(Path.Combine(InputBasePath, "Day2.txt")).Split(',').Select(z => int.Parse(z)).ToArray();
 
-    for (var position = 0; position < testInput.Length;)
+    //Set initial values
+    input[1] = 12;
+    input[2] = 2;
+
+    for (var position = 0; position < input.Length;)
     {
-      switch (testInput[position])
+      System.Console.WriteLine(string.Join(",", input));
+
+      switch (input[position])
       {
         case 1:
           {
-            var output = testInput[testInput[position + 1]] + testInput[testInput[position + 2]];
-            var target = testInput[position + 3];
+            var output = input[input[position + 1]] + input[input[position + 2]];
+            var target = input[position + 3];
             position += 4;
+            
             // System.Console.WriteLine($"Saving {output} at {target}.");
-            testInput[target] = output;
+            
+            input[target] = output;
             //Add position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
         case 2:
           {
-            var output = testInput[testInput[position + 1]] * testInput[testInput[position + 2]];
-            var target = testInput[position + 3];
+            var output = input[input[position + 1]] * input[input[position + 2]];
+            var target = input[position + 3];
             position += 4;
+            
             // System.Console.WriteLine($"Saving {output} at {target}.");
 
-            testInput[target] = output;
+            input[target] = output;
             //Multiply position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
         case 99:
           {
-            position = testInput.Length;
+            position = input.Length;
           }break;
+        default:
+        {
+          throw new Exception($"At position {position}: Opcode {input[position]}");
+        }
       }
       
       // System.Console.WriteLine($"Position is {position}.");
-      // if(position < testInput.Length)
+      // if(position < input.Length)
       // {
-      //   System.Console.WriteLine($"Opcode: {testInput[position]}");
-      // }
-      
-    }
+      //   System.Console.WriteLine($"Opcode: {input[position]}");
+      // }      
+    }   
 
-    System.Console.WriteLine(string.Join(",", testInput));
-
-    return OutputResult("", "");
+    return OutputResult(input[0].ToString(), "");
   }
 
   #endregion
