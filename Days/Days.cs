@@ -20,7 +20,18 @@ public static partial class Days
 
   public static string Day1()
   {
-    throw new NotImplementedException();
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day1.txt"));
+
+    decimal p1 = 0;
+
+    foreach(var mass in input)
+    {
+      var fuel = Math.Floor((decimal)(int.Parse(mass) / 3)) - 2;
+
+      p1 += fuel;
+    }
+    
+    return p1.ToString();
   }
 
   #endregion
