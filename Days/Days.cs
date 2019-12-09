@@ -58,15 +58,50 @@ public static partial class Days
 
   public static string Day2()
   {
-    var input = File.ReadAllText(Path.Combine(InputBasePath, "Day2.txt")).Split(',').Select(z => int.Parse(z)).ToArray();
-
-    //Set initial values
-    input[1] = 12;
-    input[2] = 2;
+    var input = Initialize(12, 2);
 
     ProcessInput(input);
 
-    return OutputResult(input[0].ToString(), "");
+    var p1 = input[0];
+
+    var noun = 0;
+    var verb = 0;
+
+    var p2 = input[0];
+
+    var target = 19690720;
+
+    while (true)
+    {
+      noun++;
+
+      input = Initialize(noun, verb);
+
+      ProcessInput(input);
+
+      p2 = input[0];
+
+      var diff = target - p2;
+
+      if (diff < 120) //The verb basically just adds its value to the end result. It has a max of 120 though. If we find a value that's within 120 of the target, the verb is the difference.
+      {
+        verb = diff;
+        break;
+      }
+    }
+
+    return OutputResult(p1.ToString(), (100 * noun + verb).ToString());
+  }
+
+  private static int[] Initialize(int noun, int verb)
+  {
+    var input = File.ReadAllText(Path.Combine(InputBasePath, "Day2.txt")).Split(',').Select(z => int.Parse(z)).ToArray();
+
+    //Set initial values
+    input[1] = noun;
+    input[2] = verb;
+
+    return input;
   }
 
   private static int[] ProcessInput(int[] input)
@@ -102,13 +137,6 @@ public static partial class Days
       }
     }
 
-    // System.Console.WriteLine($"Position is {position}.");
-
-    // if (position < input.Length)
-    // {
-    //   System.Console.WriteLine($"Opcode: {input[position]}");
-    // }
-
     return input;
   }
 
@@ -116,7 +144,7 @@ public static partial class Days
   {
     int output;
 
-    if(multiply)
+    if (multiply)
     {
       output = input[input[position + 1]] * input[input[position + 2]];
     }
@@ -124,7 +152,7 @@ public static partial class Days
     {
       output = input[input[position + 1]] + input[input[position + 2]];
     }
-    
+
     var target = input[position + 3];
 
     input[target] = output;
