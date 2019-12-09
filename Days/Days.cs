@@ -21,6 +21,7 @@ public static partial class Days
   public static string Day1()
   {
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day1.txt"));
+    var test = new []{"100756"};
 
     decimal p1 = 0;
 
@@ -30,9 +31,36 @@ public static partial class Days
 
       p1 += fuel;
     }
+
+    decimal p2 = 0;
+
+    foreach(var mass in input)
+    {
+      var fuel = Math.Floor((decimal)(int.Parse(mass) / 3)) - 2;
+
+      p2 += fuel;
+      
+      while(fuel > 0)
+      {
+        fuel = Math.Floor((decimal)(fuel / 3)) - 2;
+        
+        if(fuel > 0)
+          p2 += fuel;
+      }
+    }
     
-    return p1.ToString();
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
   #endregion
+
+  #region Day2
+
+  public string Day2()
+  {
+    return OutputResult("","");
+  }
+
+  #endregion
+
 }
