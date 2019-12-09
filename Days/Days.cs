@@ -64,54 +64,70 @@ public static partial class Days
     input[1] = 12;
     input[2] = 2;
 
+    ProcessInput(input);
+
+    return OutputResult(input[0].ToString(), "");
+  }
+
+  private static int[] ProcessInput(int[] input)
+  {
     for (var position = 0; position < input.Length;)
     {
-      System.Console.WriteLine(string.Join(",", input));
-
       switch (input[position])
       {
         case 1:
           {
-            var output = input[input[position + 1]] + input[input[position + 2]];
-            var target = input[position + 3];
+            Process(input, position, false);
+
             position += 4;
-            
-            // System.Console.WriteLine($"Saving {output} at {target}.");
-            
-            input[target] = output;
             //Add position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
         case 2:
           {
-            var output = input[input[position + 1]] * input[input[position + 2]];
-            var target = input[position + 3];
+            Process(input, position, true);
             position += 4;
-            
-            // System.Console.WriteLine($"Saving {output} at {target}.");
-
-            input[target] = output;
             //Multiply position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
         case 99:
           {
             position = input.Length;
-          }break;
+          }
+          break;
         default:
-        {
-          throw new Exception($"At position {position}: Opcode {input[position]}");
-        }
+          {
+            throw new Exception($"At position {position}: Opcode {input[position]}");
+          }
       }
-      
-      // System.Console.WriteLine($"Position is {position}.");
-      // if(position < input.Length)
-      // {
-      //   System.Console.WriteLine($"Opcode: {input[position]}");
-      // }      
-    }   
+    }
 
-    return OutputResult(input[0].ToString(), "");
+    // System.Console.WriteLine($"Position is {position}.");
+
+    // if (position < input.Length)
+    // {
+    //   System.Console.WriteLine($"Opcode: {input[position]}");
+    // }
+
+    return input;
+  }
+
+  private static void Process(int[] input, int position, bool multiply)
+  {
+    int output;
+
+    if(multiply)
+    {
+      output = input[input[position + 1]] * input[input[position + 2]];
+    }
+    else
+    {
+      output = input[input[position + 1]] + input[input[position + 2]];
+    }
+    
+    var target = input[position + 3];
+
+    input[target] = output;
   }
 
   #endregion
