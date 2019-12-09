@@ -11,7 +11,7 @@ public static partial class Days
 {
   private const string InputBasePath = @"Days/Input/";
 
-  private static string OutputResult(string part1 = string.Empty, string part2 = string.Empty)
+  private static string OutputResult(string part1 = "", string part2 = "")
   {
     return $"{Environment.NewLine}- Part 1: {part1}{Environment.NewLine}- Part 2: {part2}";
   }
@@ -162,6 +162,80 @@ public static partial class Days
 
   public static string Day3()
   {
-    return OutputResult();
+    var places = new List<Tuple<int, int>>();
+    var p1 = int.MaxValue;
+
+    var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+
+    foreach (var inputs in lines)
+    {
+      var x = 0;
+      var y = 0;
+
+      foreach (var input in inputs.Split(','))
+      {
+        Process(ref x, ref y, input, places, out var intersection);
+
+        if (intersection != null)
+        {
+          System.Console.WriteLine($"Intersection at {intersection}!, {input}");
+
+          p1 = Math.Min(Math.Abs(intersection.Item1) + Math.Abs(intersection.Item2), p1);
+
+          System.Console.WriteLine($"P1 is now {p1}");
+        }
+
+        // System.Console.WriteLine($"Current position = x: {x}, y: {y}");
+      }
+
+      // System.Console.WriteLine($"Final position = x: {x}, y: {y}");
+    }
+
+    return OutputResult(p1.ToString());
+  }
+
+  private static void Process(ref int x, ref int y, string input, List<Tuple<int, int>> beenPlaces, out Tuple<int, int> intersection)
+  {
+    var distance = int.Parse(input.Substring(1));
+
+    intersection = null;
+
+    for (var step = distance; step > 0; step--)
+    {
+      switch (input[0])
+      {
+        case 'U':
+          {
+            y++;
+          }
+          break;
+        case 'R':
+          {
+            x++;
+          }
+          break;
+        case 'D':
+          {
+            y--;
+          }
+          break;
+        case 'L':
+          {
+            x--;
+          }
+          break;
+      }
+
+      var current = new Tuple<int, int>(x, y);
+
+      if (beenPlaces.Contains(current))
+      {
+        intersection = current;
+      }
+      else
+      {
+        beenPlaces.Add(current);
+      }
+    }
   }
 }
