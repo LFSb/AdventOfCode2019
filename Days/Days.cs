@@ -21,11 +21,11 @@ public static partial class Days
   public static string Day1()
   {
     var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day1.txt"));
-    var test = new []{"100756"};
+    var test = new[] { "100756" };
 
     decimal p1 = 0;
 
-    foreach(var mass in input)
+    foreach (var mass in input)
     {
       var fuel = Math.Floor((decimal)(int.Parse(mass) / 3)) - 2;
 
@@ -34,21 +34,21 @@ public static partial class Days
 
     decimal p2 = 0;
 
-    foreach(var mass in input)
+    foreach (var mass in input)
     {
       var fuel = Math.Floor((decimal)(int.Parse(mass) / 3)) - 2;
 
       p2 += fuel;
-      
-      while(fuel > 0)
+
+      while (fuel > 0)
       {
         fuel = Math.Floor((decimal)(fuel / 3)) - 2;
-        
-        if(fuel > 0)
+
+        if (fuel > 0)
           p2 += fuel;
       }
     }
-    
+
     return OutputResult(p1.ToString(), p2.ToString());
   }
 
@@ -58,7 +58,9 @@ public static partial class Days
 
   public string Day2()
   {
-    return OutputResult("","");
+    var testInput = new[] { 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 };
+
+    return OutputResult("", "");
   }
 
   #endregion
