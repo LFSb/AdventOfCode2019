@@ -56,9 +56,50 @@ public static partial class Days
 
   #region Day2
 
-  public string Day2()
+  public static string Day2()
   {
-    var testInput = new[] { 1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50 };
+    var testInput = new[] { 1,1,1,4,99,5,6,0,99};
+
+    for (var position = 0; position < testInput.Length;)
+    {
+      switch (testInput[position])
+      {
+        case 1:
+          {
+            var output = testInput[testInput[position + 1]] + testInput[testInput[position + 2]];
+            var target = testInput[position + 3];
+            position += 4;
+            // System.Console.WriteLine($"Saving {output} at {target}.");
+            testInput[target] = output;
+            //Add position+1 and position+2 together, store the output at the position specified in position+3
+          }
+          break;
+        case 2:
+          {
+            var output = testInput[testInput[position + 1]] * testInput[testInput[position + 2]];
+            var target = testInput[position + 3];
+            position += 4;
+            // System.Console.WriteLine($"Saving {output} at {target}.");
+
+            testInput[target] = output;
+            //Multiply position+1 and position+2 together, store the output at the position specified in position+3
+          }
+          break;
+        case 99:
+          {
+            position = testInput.Length;
+          }break;
+      }
+      
+      // System.Console.WriteLine($"Position is {position}.");
+      // if(position < testInput.Length)
+      // {
+      //   System.Console.WriteLine($"Opcode: {testInput[position]}");
+      // }
+      
+    }
+
+    System.Console.WriteLine(string.Join(",", testInput));
 
     return OutputResult("", "");
   }
