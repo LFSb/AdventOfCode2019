@@ -5,6 +5,13 @@ public class Program
 {
   static void Main(string[] args)
   {
-    Console.WriteLine(Days.Day3());
+    var sw = new Stopwatch();
+    sw.Start();
+    
+    Console.WriteLine(Days.Day4());
+
+    System.Console.WriteLine($"Took {sw.ElapsedMilliseconds} ms.");
+    
+    sw.Stop();
   }
 }

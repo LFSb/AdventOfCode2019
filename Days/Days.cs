@@ -160,14 +160,25 @@ public static partial class Days
 
   #endregion
 
+  #region Day3
+
+  //Take two lines of input. Each line details a wire and the direction it is heading. The directions are delimited by a ','. The direction itself contains the direction, and the amount of steps in that direction you should take. So R8 means go 8 steps to the right. U20 means 20 steps up.
+  //Basically, we are walking a grid, with an X axis and a Y axis. Going Right means adding one to the X axis. Going up means adding one to the Y axis. Left and Down mean detracting from the X and Y axis respectively.
+  //We should check where the two wires (two lines) are intersecting. We should then print out the Manhattan distance (which is the combined absolute values of the X and Y axis) of the colission that is closest to the beginning.
+  //In other words, all the collisions will have a manhattan distance, and we need the lowest one. Print that out.
+  //Game rules: A wire cannot intersect itself. Also, technically both wires cross at 0,0 as they both start from there, but that one doesn't count.
   public static string Day3()
   {
-    var places = new Dictionary<Tuple<int, int>, int> { {new Tuple<int, int>(0, 0), 1} };
+    var places = new Dictionary<Tuple<int, int>, int> { { new Tuple<int, int>(0, 0), 1 } };
     var target = new Dictionary<Tuple<int, int>, int>();
+
+    //var lines = new[] { "R8,U5,L5,D3", "U7,R6,D4,L4" };
 
     //var lines = new[] { "R75,D30,R83,U83,L12,D49,R71,U7,L72", "U62,R66,U55,R34,D71,R55,D58,R83" };
 
-    var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+    var lines = new[] { "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51", "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7" };
+
+    //var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
 
     foreach (var inputs in lines)
     {
@@ -184,10 +195,61 @@ public static partial class Days
 
     //Visualize(places);
 
-    var p1 = places.Where(p => p.Value > 1).Select(s => Math.Abs(s.Key.Item1) + Math.Abs(s.Key.Item2)).OrderBy(v => v).First();
+    var colissions = target.Where(p => p.Value > 1).Select(s => Math.Abs(s.Key.Item1) + Math.Abs(s.Key.Item2)).OrderBy(v => v);
+
+    var p1 = colissions.First();
 
     return OutputResult(p1.ToString());
   }
+
+  private static void Process(ref int x, ref int y, string input, Dictionary<Tuple<int, int>, int> beenPlaces, Dictionary<Tuple<int, int>, int> target)
+  {
+    var distance = int.Parse(input.Substring(1));
+
+    for (var step = distance; step > 0; step--)
+    {
+      switch (input[0])
+      {
+        case 'U':
+          {
+            y++;
+          }
+          break;
+        case 'R':
+          {
+            x++;
+          }
+          break;
+        case 'D':
+          {
+            y--;
+          }
+          break;
+        case 'L':
+          {
+            x--;
+          }
+          break;
+      }
+
+      var current = new Tuple<int, int>(x, y);
+
+      if (target.ContainsKey(current))
+      {
+        target[current]++;
+        System.Console.WriteLine($"{input} led to a collision at {current}! Distance: {Math.Abs(current.Item1) + Math.Abs(current.Item2)}");
+      }
+      else if (beenPlaces.ContainsKey(current))
+      {
+        System.Console.WriteLine($"{input} led to a collision at {current}! However, it is intersecting with itself.");
+      }
+      else
+      {
+        beenPlaces.Add(current, 1);
+      }
+    }
+  }
+
 
   private static void Visualize(Dictionary<Tuple<int, int>, int> places)
   {
@@ -238,51 +300,110 @@ public static partial class Days
     }
   }
 
-  private static void Process(ref int x, ref int y, string input, Dictionary<Tuple<int, int>, int> beenPlaces, Dictionary<Tuple<int, int>, int> target)
+  #endregion
+
+  #region Day4
+  public static string Day4()
   {
-    var distance = int.Parse(input.Substring(1));
+    var candidates = new List<int>();
 
-    for (var step = distance; step > 0; step--)
+    int lower = 138307;
+    int upper = 654504;
+
+    for (var i = lower; i <= upper; i++)
     {
-      switch (input[0])
+      if (TestP1(i))
       {
-        case 'U':
-          {
-            y++;
-          }
-          break;
-        case 'R':
-          {
-            x++;
-          }
-          break;
-        case 'D':
-          {
-            y--;
-          }
-          break;
-        case 'L':
-          {
-            x--;
-          }
-          break;
-      }
-
-      var current = new Tuple<int, int>(x, y);
-
-      if (target.ContainsKey(current))
-      {
-        target[current]++;
-        System.Console.WriteLine($"{input} led to a collision at {current}! Distance: {Math.Abs(current.Item1) + Math.Abs(current.Item2)}");
-      }
-      else if(beenPlaces.ContainsKey(current))
-      {
-        System.Console.WriteLine($"{input} led to a collision at {current}! However, it is intersecting with itself.");
-      }
-      else
-      {
-        beenPlaces.Add(current, 1);
+        candidates.Add(i);
+        //System.Console.WriteLine($"Found one! {i} added to the list. We're at {candidates.Distinct().Count()} now.");
       }
     }
+
+    var p1 = candidates.Distinct().Count().ToString();
+
+    candidates = new List<int>();
+
+    for (var i = lower; i <= upper; i++)
+    {
+      if (TestP2(i))
+      {
+        candidates.Add(i);
+        System.Console.WriteLine($"Found one! {i} added to the list. We're at {candidates.Distinct().Count()} now.");
+      }
+    }
+
+    var p2 = candidates.Distinct().Count().ToString();
+
+    return OutputResult(p1, p2);
   }
+
+  private static bool TestP1(int i)
+  {
+    var increasing = true;
+    var doubles = false;
+
+    var text = i.ToString();
+
+    for (var idx = 0; idx < text.Length; idx++)
+    {
+      var current = (int)text[idx];
+
+      if (idx + 1 == text.Length)
+      {
+        break;
+      }
+
+      var next = (int)text[idx + 1];
+
+      if (next < current)
+        increasing = false;
+
+      if (next == current)
+      {
+        doubles = true;
+      }
+    }
+
+    return increasing && doubles;
+  }
+
+  private static bool TestP2(int i)
+  {
+    var increasing = true;
+    var doubles = false;
+
+    var text = i.ToString();
+
+    for (var idx = 0; idx < text.Length; idx++)
+    {
+      var current = (int)text[idx];
+
+      if (idx + 1 == text.Length)
+      {
+        break;
+      }
+
+      var next = (int)text[idx + 1];
+
+      var nextNext = idx + 2 < text.Length ? (int)text[idx + 2] : -1;
+      var previous = idx - 1 >= 0 ? (int)text[idx -1] : -1;
+
+      if (next < current)
+        increasing = false;
+
+      if (next == current) //We got a match, now we need to make sure that it isn't part of a larger group.
+      {
+        if (nextNext != current && previous != current)
+        {
+          doubles = true;
+        }
+      }
+    }
+
+    return increasing && doubles;
+  }
+
+  #endregion
+
+
 }
