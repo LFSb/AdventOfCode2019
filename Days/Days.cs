@@ -60,7 +60,7 @@ public static partial class Days
   {
     var input = Initialize(12, 2);
 
-    ProcessInput(input);
+    ProcessOpCode(input);
 
     var p1 = input[0];
 
@@ -77,7 +77,7 @@ public static partial class Days
 
       input = Initialize(noun, verb);
 
-      ProcessInput(input);
+      ProcessOpCode(input);
 
       p2 = input[0];
 
@@ -104,7 +104,7 @@ public static partial class Days
     return input;
   }
 
-  private static int[] ProcessInput(int[] input)
+  private static int[] ProcessOpCode(int[] input)
   {
     for (var position = 0; position < input.Length;)
     {
@@ -112,7 +112,7 @@ public static partial class Days
       {
         case 1:
           {
-            Process(input, position, false);
+            ProcessDay2(input, position, false);
 
             position += 4;
             //Add position+1 and position+2 together, store the output at the position specified in position+3
@@ -120,11 +120,23 @@ public static partial class Days
           break;
         case 2:
           {
-            Process(input, position, true);
+            ProcessDay2(input, position, true);
             position += 4;
             //Multiply position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
+        case 3: //Take parameter as input, store at position + 1.
+        {
+          ProcessDay5(input, position);
+          position += 2;
+        }
+        break;
+        case 4: //Output parameter at position + 1
+        {
+          ProcessDay5(input, position);
+          position += 2;
+        }
+        break;
         case 99:
           {
             position = input.Length;
@@ -140,7 +152,9 @@ public static partial class Days
     return input;
   }
 
-  private static void Process(int[] input, int position, bool multiply)
+  
+
+  private static void ProcessDay2(int[] input, int position, bool multiply)
   {
     int output;
 
@@ -303,6 +317,7 @@ public static partial class Days
   #endregion
 
   #region Day4
+
   public static string Day4()
   {
     var candidates = new List<int>();
@@ -328,7 +343,7 @@ public static partial class Days
       if (TestP2(i))
       {
         candidates.Add(i);
-        System.Console.WriteLine($"Found one! {i} added to the list. We're at {candidates.Distinct().Count()} now.");
+        //System.Console.WriteLine($"Found one! {i} added to the list. We're at {candidates.Distinct().Count()} now.");
       }
     }
 
@@ -405,5 +420,16 @@ public static partial class Days
 
   #endregion
 
+  #region Day5
+  public static string Day5()
+  {
+    return OutputResult();
+  }
 
+  private static void ProcessDay5(int[] input, int position)
+  {
+    throw new NotImplementedException();
+  }
+
+  #endregion
 }
