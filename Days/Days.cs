@@ -162,12 +162,12 @@ public static partial class Days
 
   public static string Day3()
   {
-    var places = new List<Tuple<int, int>> { new Tuple<int, int>(0, 0) };
-    var p1 = int.MaxValue;
+    var places = new Dictionary<Tuple<int, int>, int> { {new Tuple<int, int>(0, 0), 1} };
+    var target = new Dictionary<Tuple<int, int>, int>();
 
-    var lines = new[] { "R8,U5,L5,D3", "U7,R6,D4,L4" };
+    //var lines = new[] { "R75,D30,R83,U83,L12,D49,R71,U7,L72", "U62,R66,U55,R34,D71,R55,D58,R83" };
 
-    //var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+    var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
 
     foreach (var inputs in lines)
     {
@@ -176,34 +176,25 @@ public static partial class Days
 
       foreach (var input in inputs.Split(','))
       {
-        Process(ref x, ref y, input, places, out var intersection);
-
-        if (intersection != null)
-        {
-          System.Console.WriteLine($"Intersection at {intersection}!, {input}");
-
-          p1 = Math.Min(Math.Abs(intersection.Item1) + Math.Abs(intersection.Item2), p1);
-
-          System.Console.WriteLine($"P1 is now {p1}");
-        }
-
-        // System.Console.WriteLine($"Current position = x: {x}, y: {y}");
+        Process(ref x, ref y, input, places, target);
       }
 
-      // System.Console.WriteLine($"Final position = x: {x}, y: {y}");
+      target = places;
     }
 
-    Visualize(places);
+    //Visualize(places);
+
+    var p1 = places.Where(p => p.Value > 1).Select(s => Math.Abs(s.Key.Item1) + Math.Abs(s.Key.Item2)).OrderBy(v => v).First();
 
     return OutputResult(p1.ToString());
   }
 
-  private static void Visualize(List<Tuple<int, int>> places)
+  private static void Visualize(Dictionary<Tuple<int, int>, int> places)
   {
-    var xcoords = places.Select(x => x.Item1).Distinct();
-    var ycoords = places.Select(x => x.Item2).Distinct();
+    var xcoords = places.Select(x => x.Key.Item1).Distinct();
+    var ycoords = places.Select(x => x.Key.Item2).Distinct();
 
-    var dimension = new Tuple<int, int>(xcoords.Max() - xcoords.Min(), ycoords.Max() - xcoords.Min());
+    var dimension = new Tuple<int, int>((xcoords.Max() - xcoords.Min()) + 1, (ycoords.Max() - xcoords.Min()) + 1);
 
     var grid = new char[dimension.Item1][];
 
@@ -213,20 +204,26 @@ public static partial class Days
 
       for (var y = 0; y < grid[x].Length; y++)
       {
-        if (places.Contains(new Tuple<int, int>(x, y)))
+        var current = new Tuple<int, int>(x, y);
+
+        if (places.ContainsKey(current))
         {
-          if (grid[x][y] == 'o')
+          if (places[current] > 1)
           {
             grid[x][y] = 'X';
           }
           else if (x == 0 && y == 0)
           {
-            grid[x][y] = 'S';
+            grid[x][y] = '0';
           }
           else
           {
             grid[x][y] = 'o';
           }
+        }
+        else
+        {
+          grid[x][y] = '.';
         }
       }
     }
@@ -241,11 +238,9 @@ public static partial class Days
     }
   }
 
-  private static void Process(ref int x, ref int y, string input, List<Tuple<int, int>> beenPlaces, out Tuple<int, int> intersection)
+  private static void Process(ref int x, ref int y, string input, Dictionary<Tuple<int, int>, int> beenPlaces, Dictionary<Tuple<int, int>, int> target)
   {
     var distance = int.Parse(input.Substring(1));
-
-    intersection = null;
 
     for (var step = distance; step > 0; step--)
     {
@@ -275,13 +270,18 @@ public static partial class Days
 
       var current = new Tuple<int, int>(x, y);
 
-      if (beenPlaces.Contains(current))
+      if (target.ContainsKey(current))
       {
-        intersection = current;
+        target[current]++;
+        System.Console.WriteLine($"{input} led to a collision at {current}! Distance: {Math.Abs(current.Item1) + Math.Abs(current.Item2)}");
+      }
+      else if(beenPlaces.ContainsKey(current))
+      {
+        System.Console.WriteLine($"{input} led to a collision at {current}! However, it is intersecting with itself.");
       }
       else
       {
-        beenPlaces.Add(current);
+        beenPlaces.Add(current, 1);
       }
     }
   }
