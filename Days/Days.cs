@@ -432,4 +432,100 @@ public static partial class Days
   }
 
   #endregion
+
+  #region Day6
+  public static string Day6()
+  {
+    //var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"));
+    var input = new []{ "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L", "K)YOU", "I)SAN" }; 
+
+    var orbits = new Dictionary<string, List<string>>();
+
+    foreach(var line in input)
+    {
+      Process(line, orbits);
+    }
+
+    var p1 = Count(orbits);
+
+    //For p2 we need to do something a little different, We ("YOU") need to calculate how to get to Santa ("SAN").
+    //We should probably do this by first determining the first common orbit. We start counting from the objects that YOU and SAN actually orbit.
+    //In the above example, SAN orbits I, and I orbits D. YOU orbits K, which orbits J, which orbits E, which orbits D. The total amount of orbital hops is K -> J -> E -> D -> I = 4 hops.
+
+    var youOrbit = orbits.First(z => z.Value.Contains("YOU")).Key;
+    var sanOrbit = orbits.First(z => z.Value.Contains("SAN")).Key;
+
+    var common = FindCommonOrbits(youOrbit, sanOrbit, orbits);
+
+    return OutputResult(p1.ToString());
+  }
+
+  private static List<string> FindCommonOrbits(string youOrbit, string sanOrbit, Dictionary<string, List<string>> orbits)
+  {
+    var youOrbits = ReturnOrbits(youOrbit, orbits);
+    var sanOrbits = ReturnOrbits(sanOrbit, orbits);
+
+    //Here is where it gets challenging. How are we going to calculate which of the common orbits requires the least amount of steps? Brute force it?
+    //Let's cross that bridge when we get to it.
+    return youOrbits.Intersect(sanOrbits).ToList();
+  }
+
+  private static List<string> ReturnOrbits(string youOrbit, Dictionary<string, List<string>> orbits)
+  {
+    var orbiting = orbits.Where(x => x.Value.Contains(youOrbit)).Select(z => z.Key).ToList();
+
+    var indirectOrbits = new List<string>();
+
+    foreach(var orbit in orbiting)
+    {
+      indirectOrbits.AddRange(ReturnOrbits(orbit, orbits));
+    }
+
+    orbiting.AddRange(indirectOrbits);
+
+    return orbiting;
+  }
+
+  private static int Count(Dictionary<string, List<string>> orbits)
+  {
+    var objects = orbits.SelectMany(z => z.Value).Distinct();
+
+    var checksum = 0;
+
+    foreach(var obj in objects)
+    {
+      checksum += CalculateOrbits(obj, orbits);
+    }
+
+    return checksum;
+  }
+
+  private static int CalculateOrbits(string obj, Dictionary<string, List<string>> orbits)
+  {
+    var inOrbit = orbits.Where(z => z.Value.Contains(obj)).Select(z => z.Key).Distinct();
+
+    var indirectOrbits = 0;
+
+    foreach(var orbiting in inOrbit)
+    {
+      indirectOrbits += CalculateOrbits(orbiting, orbits);
+    }   
+
+    return inOrbit.Count() + indirectOrbits;
+  }
+
+  private static void Process(string line, Dictionary<string, List<string>> orbits)
+  {
+    var split = line.Split(')');
+
+    if(orbits.ContainsKey(split[0]))
+    {
+      orbits[split[0]].Add(split[1]);
+    }
+    else
+    {
+      orbits.Add(split[0], new List<string>{ split[1] });
+    }
+  }
+  #endregion
 }
