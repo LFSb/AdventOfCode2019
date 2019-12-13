@@ -181,43 +181,47 @@ public static partial class Days
   //We should check where the two wires (two lines) are intersecting. We should then print out the Manhattan distance (which is the combined absolute values of the X and Y axis) of the colission that is closest to the beginning.
   //In other words, all the collisions will have a manhattan distance, and we need the lowest one. Print that out.
   //Game rules: A wire cannot intersect itself. Also, technically both wires cross at 0,0 as they both start from there, but that one doesn't count.
+
   public static string Day3()
   {
-    var places = new Dictionary<Tuple<int, int>, int> { { new Tuple<int, int>(0, 0), 1 } };
-    var target = new Dictionary<Tuple<int, int>, int>();
-
     //var lines = new[] { "R8,U5,L5,D3", "U7,R6,D4,L4" };
 
     //var lines = new[] { "R75,D30,R83,U83,L12,D49,R71,U7,L72", "U62,R66,U55,R34,D71,R55,D58,R83" };
 
-    var lines = new[] { "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51", "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7" };
+    //var lines = new[] { "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51", "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7" };
 
-    //var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+    var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
+
+    var pointsLists = new List<List<Tuple<int, int>>>();
 
     foreach (var inputs in lines)
     {
       var x = 0;
       var y = 0;
+      var traveledPoints = new List<Tuple<int, int>>();
 
       foreach (var input in inputs.Split(','))
       {
-        Process(ref x, ref y, input, places, target);
+        traveledPoints.AddRange(Process(ref x, ref y, input));
       }
 
-      target = places;
+      pointsLists.Add(traveledPoints);
     }
 
-    //Visualize(places);
+    var firstLine = pointsLists.First();
+    var secondLine = pointsLists.Last();
 
-    var colissions = target.Where(p => p.Value > 1).Select(s => Math.Abs(s.Key.Item1) + Math.Abs(s.Key.Item2)).OrderBy(v => v);
+    var colissions = secondLine.Intersect(firstLine).Select(s => Math.Abs(s.Item1) + Math.Abs(s.Item2)).OrderBy(v => v);
 
     var p1 = colissions.First();
 
     return OutputResult(p1.ToString());
   }
 
-  private static void Process(ref int x, ref int y, string input, Dictionary<Tuple<int, int>, int> beenPlaces, Dictionary<Tuple<int, int>, int> target)
+  private static List<Tuple<int, int>> Process(ref int x, ref int y, string input)
   {
+    var traveledPoints = new List<Tuple<int, int>>();
+
     var distance = int.Parse(input.Substring(1));
 
     for (var step = distance; step > 0; step--)
@@ -245,23 +249,11 @@ public static partial class Days
           }
           break;
       }
-
       var current = new Tuple<int, int>(x, y);
-
-      if (target.ContainsKey(current))
-      {
-        target[current]++;
-        System.Console.WriteLine($"{input} led to a collision at {current}! Distance: {Math.Abs(current.Item1) + Math.Abs(current.Item2)}");
-      }
-      else if (beenPlaces.ContainsKey(current))
-      {
-        System.Console.WriteLine($"{input} led to a collision at {current}! However, it is intersecting with itself.");
-      }
-      else
-      {
-        beenPlaces.Add(current, 1);
-      }
+      traveledPoints.Add(current);
     }
+
+    return traveledPoints;
   }
 
 

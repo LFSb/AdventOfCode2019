@@ -7,9 +7,9 @@ public class Program
   {
     var sw = new Stopwatch();
     sw.Start();
+
     
-    
-    Console.WriteLine(Days.Day6());
+    Console.WriteLine(Days.Day3());
 
     System.Console.WriteLine($"Took {sw.ElapsedMilliseconds} ms.");
 
