@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 public static partial class Days
 {
@@ -182,6 +178,36 @@ public static partial class Days
   //In other words, all the collisions will have a manhattan distance, and we need the lowest one. Print that out.
   //Game rules: A wire cannot intersect itself. Also, technically both wires cross at 0,0 as they both start from there, but that one doesn't count.
 
+  private class Point 
+  {
+    public Point(int x, int y, int steps)
+    {
+      X = x;
+      Y = y;
+      Steps = steps;
+    }
+
+    public int X { get; private set; }
+
+    public int Y { get; private set; }
+
+    public int Steps { get; private set; }    
+  }
+
+  private class PointComparer : IEqualityComparer<Point>
+  {
+    public bool Equals(Point x, Point y)
+    {
+      return x.X == y.X && x.Y == y.Y;
+    }
+
+    public int GetHashCode(Point point)
+    {
+      return (point.X + point.Y).GetHashCode();
+    }
+  }
+  
+
   public static string Day3()
   {
     //var lines = new[] { "R8,U5,L5,D3", "U7,R6,D4,L4" };
@@ -192,17 +218,19 @@ public static partial class Days
 
     var lines = File.ReadAllLines(Path.Combine(InputBasePath, "Day3.txt"));
 
-    var pointsLists = new List<List<Tuple<int, int>>>();
+    var pointsLists = new List<List<Point>>();
 
     foreach (var inputs in lines)
     {
       var x = 0;
       var y = 0;
-      var traveledPoints = new List<Tuple<int, int>>();
+      var steps = 0;
+
+      var traveledPoints = new List<Point>();
 
       foreach (var input in inputs.Split(','))
       {
-        traveledPoints.AddRange(Process(ref x, ref y, input));
+        traveledPoints.AddRange(Process(ref steps, ref x, ref y, input));
       }
 
       pointsLists.Add(traveledPoints);
@@ -210,19 +238,32 @@ public static partial class Days
 
     var firstLine = pointsLists.First();
     var secondLine = pointsLists.Last();
+    var comparer = new PointComparer();
+    
+    var intersected = secondLine.Intersect(firstLine, comparer);
 
-    var colissions = secondLine.Intersect(firstLine).Select(s => Math.Abs(s.Item1) + Math.Abs(s.Item2)).OrderBy(v => v);
+    var colissions =  intersected.Select(s => Math.Abs(s.X) + Math.Abs(s.Y)).OrderBy(v => v);
 
     var p1 = colissions.First();
 
-    return OutputResult(p1.ToString());
+    var p2 = int.MaxValue;
+
+    foreach(var intersection in intersected)
+    {
+      var firstLineSteps = firstLine.First(x => comparer.Equals(x, intersection)).Steps;
+      var secondLineSteps = secondLine.First(x => comparer.Equals(x, intersection)).Steps;
+
+      p2 = Math.Min(firstLineSteps + secondLineSteps, p2);
+    }
+
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
-  private static List<Tuple<int, int>> Process(ref int x, ref int y, string input)
+  private static List<Point> Process(ref int steps, ref int x, ref int y, string input)
   {
-    var traveledPoints = new List<Tuple<int, int>>();
+    var traveledPoints = new List<Point>();
 
-    var distance = int.Parse(input.Substring(1));
+    var distance = int.Parse(input.Substring(1));  
 
     for (var step = distance; step > 0; step--)
     {
@@ -249,61 +290,11 @@ public static partial class Days
           }
           break;
       }
-      var current = new Tuple<int, int>(x, y);
-      traveledPoints.Add(current);
+
+      traveledPoints.Add(new Point(x, y, ++steps));
     }
 
     return traveledPoints;
-  }
-
-
-  private static void Visualize(Dictionary<Tuple<int, int>, int> places)
-  {
-    var xcoords = places.Select(x => x.Key.Item1).Distinct();
-    var ycoords = places.Select(x => x.Key.Item2).Distinct();
-
-    var dimension = new Tuple<int, int>((xcoords.Max() - xcoords.Min()) + 1, (ycoords.Max() - xcoords.Min()) + 1);
-
-    var grid = new char[dimension.Item1][];
-
-    for (var x = 0; x < grid.Length; x++)
-    {
-      grid[x] = new char[dimension.Item2];
-
-      for (var y = 0; y < grid[x].Length; y++)
-      {
-        var current = new Tuple<int, int>(x, y);
-
-        if (places.ContainsKey(current))
-        {
-          if (places[current] > 1)
-          {
-            grid[x][y] = 'X';
-          }
-          else if (x == 0 && y == 0)
-          {
-            grid[x][y] = '0';
-          }
-          else
-          {
-            grid[x][y] = 'o';
-          }
-        }
-        else
-        {
-          grid[x][y] = '.';
-        }
-      }
-    }
-
-    for (var x = grid.Length - 1; x > -1; x--)
-    {
-      for (var y = 0; y < grid[x].Length; y++)
-      {
-        Console.Write(grid[x][y]);
-      }
-      Console.WriteLine();
-    }
   }
 
   #endregion
