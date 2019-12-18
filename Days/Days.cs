@@ -520,4 +520,43 @@ public static partial class Days
     }
   }
   #endregion
+
+  #region Day 7
+
+  public static string Day7()
+  {
+
+    return OutputResult();
+  }
+
+  #endregion
+
+  #region Day 8
+
+  public static string Day8()
+  {
+    var x = 3;
+    var y = 2;
+
+    var input = "123456789012";
+
+    for(var layer = 1; layer <= input.Length / (x * y); layer ++)
+    {
+      System.Console.WriteLine($"Layer {layer}");
+
+      for(var i = 0; i < y; i++)
+      {
+        for(var j = 0; j < x; j++)
+        {
+          Console.Write(input[j + (i * x * layer)]);
+        }
+        
+        Console.WriteLine();
+      }
+    }    
+
+    return OutputResult();
+  }
+
+  #endregion
 }
