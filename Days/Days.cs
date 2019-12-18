@@ -121,16 +121,9 @@ public static partial class Days
             //Multiply position+1 and position+2 together, store the output at the position specified in position+3
           }
           break;
-        case 3: //Take parameter as input, store at position + 1.
+        case 3:
         {
           ProcessDay5(input, position);
-          position += 2;
-        }
-        break;
-        case 4: //Output parameter at position + 1
-        {
-          ProcessDay5(input, position);
-          position += 2;
         }
         break;
         case 99:
@@ -148,7 +141,11 @@ public static partial class Days
     return input;
   }
 
-  
+  private static void ProcessDay5(int[] input, int position)
+  {
+    System.Console.WriteLine("Please enter Input: ");
+    var inputValue = int.Parse(Console.ReadLine());
+  }
 
   private static void ProcessDay2(int[] input, int position, bool multiply)
   {
@@ -409,7 +406,7 @@ public static partial class Days
     return OutputResult();
   }
 
-  private static void ProcessDay5(int[] input, int position)
+  private static void ProcessDay5(int[] input, int position, bool immediate)
   {
     throw new NotImplementedException();
   }
@@ -419,8 +416,8 @@ public static partial class Days
   #region Day6
   public static string Day6()
   {
-    //var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"));
-    var input = new []{ "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L", "K)YOU", "I)SAN" }; 
+    var input = File.ReadAllLines(Path.Combine(InputBasePath, "Day6.txt"));
+    //var input = new []{ "COM)B", "B)C", "C)D", "D)E", "E)F", "B)G", "G)H", "D)I", "E)J", "J)K", "K)L", "K)YOU", "I)SAN" }; 
 
     var orbits = new Dictionary<string, List<string>>();
 
@@ -438,30 +435,42 @@ public static partial class Days
     var youOrbit = orbits.First(z => z.Value.Contains("YOU")).Key;
     var sanOrbit = orbits.First(z => z.Value.Contains("SAN")).Key;
 
-    var common = FindCommonOrbits(youOrbit, sanOrbit, orbits);
+    var p2 = FindCommonOrbits(youOrbit, sanOrbit, orbits).OrderBy(x => x.Item2).First().Item2;
 
-    return OutputResult(p1.ToString());
+    return OutputResult(p1.ToString(), p2.ToString());
   }
 
-  private static List<string> FindCommonOrbits(string youOrbit, string sanOrbit, Dictionary<string, List<string>> orbits)
+  private static List<Tuple<string, int>> FindCommonOrbits(string youOrbit, string sanOrbit, Dictionary<string, List<string>> orbits)
   {
-    var youOrbits = ReturnOrbits(youOrbit, orbits);
-    var sanOrbits = ReturnOrbits(sanOrbit, orbits);
+    var youOrbits = ReturnOrbits(youOrbit, orbits, 0);
+    var sanOrbits = ReturnOrbits(sanOrbit, orbits, 0);
+
+    var weightedOrbits = new List<Tuple<string, int>>();
 
     //Here is where it gets challenging. How are we going to calculate which of the common orbits requires the least amount of steps? Brute force it?
     //Let's cross that bridge when we get to it.
-    return youOrbits.Intersect(sanOrbits).ToList();
+    var commonOrbits = youOrbits.Select(o => o.Item1).Intersect(sanOrbits.Select(o => o.Item1)).ToList();
+
+    //Now we should weigh these orbits by the amount of "hops" it took from both orbits
+    foreach(var commonOrbit in commonOrbits)
+    {
+      weightedOrbits.Add(new Tuple<string, int>(commonOrbit, youOrbits.First(x => x.Item1 == commonOrbit).Item2 + sanOrbits.First(x => x.Item1 == commonOrbit).Item2));
+    }
+
+    return weightedOrbits;
   }
 
-  private static List<string> ReturnOrbits(string youOrbit, Dictionary<string, List<string>> orbits)
+  private static List<Tuple<string, int>> ReturnOrbits(string youOrbit, Dictionary<string, List<string>> orbits, int hops)
   {
-    var orbiting = orbits.Where(x => x.Value.Contains(youOrbit)).Select(z => z.Key).ToList();
+    hops++;
 
-    var indirectOrbits = new List<string>();
+    var orbiting = orbits.Where(x => x.Value.Contains(youOrbit)).Select(z => new Tuple<string, int>(z.Key, hops)).ToList();
+
+    var indirectOrbits = new List<Tuple<string, int>>();
 
     foreach(var orbit in orbiting)
     {
-      indirectOrbits.AddRange(ReturnOrbits(orbit, orbits));
+      indirectOrbits.AddRange(ReturnOrbits(orbit.Item1, orbits, hops));
     }
 
     orbiting.AddRange(indirectOrbits);
