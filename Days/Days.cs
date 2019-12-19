@@ -540,15 +540,13 @@ public static partial class Days
 
     var input = "123456789012";
 
-    for(var layer = 1; layer <= input.Length / (x * y); layer ++)
+        for(var layer = 0; layer < input.Length; layer += (x * y))
     {
-      System.Console.WriteLine($"Layer {layer}");
-
       for(var i = 0; i < y; i++)
       {
         for(var j = 0; j < x; j++)
         {
-          Console.Write(input[j + (i * x * layer)]);
+          Console.Write(input[j + (i * x) + layer]);
         }
         
         Console.WriteLine();
