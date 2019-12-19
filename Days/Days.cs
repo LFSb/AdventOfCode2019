@@ -535,25 +535,39 @@ public static partial class Days
 
   public static string Day8()
   {
-    var x = 3;
-    var y = 2;
+    var x = 25;
+    var y = 6;
 
-    var input = "123456789012";
+    var input = File.ReadAllText(Path.Combine(InputBasePath, "Day8.txt"));
 
-        for(var layer = 0; layer < input.Length; layer += (x * y))
-    {
+    //var input = "123456789012";
+
+    var layers = new List<char[][]>();
+
+    for(var layer = 0; layer < input.Length; layer += (x * y))
+    {   
+      var l = new char[y][];
+
       for(var i = 0; i < y; i++)
       {
+        l[i] = new char[x];
+
         for(var j = 0; j < x; j++)
         {
-          Console.Write(input[j + (i * x) + layer]);
-        }
-        
-        Console.WriteLine();
-      }
-    }    
+          var val = input[j + (i * x) + layer];
 
-    return OutputResult();
+          l[i][j] = val;
+        }
+      }     
+
+      layers.Add(l);
+    }     
+
+    var targetLayer = layers.OrderBy(layer => layer.SelectMany(arr => arr.Select(z => z)).Count(z => z == '0')).First().SelectMany(arr => arr.Select(z => z));
+
+    var p1 = targetLayer.Count(z => z == '1') * targetLayer.Count(z => z == '2');
+
+    return OutputResult(p1.ToString());
   }
 
   #endregion
